@@ -1,48 +1,41 @@
-package bayers;
+package nn;
 
-import weka.core.*;
+import weka.classifiers.Classifier;
+import weka.classifiers.Evaluation;
+import weka.classifiers.functions.MultilayerPerceptron;
+import weka.core.Instances;
 import weka.core.converters.ConverterUtils;
-import weka.filters.Filter;
-import weka.filters.unsupervised.attribute.StringToWordVector;
-import weka.classifiers.bayes.NaiveBayesMultinomial;
-import weka.classifiers.*;
 
-public class BayersMain {
+public class NN {
     private String fileName;
     private Instances data;
     private Classifier cl;
 
-    public BayersMain(String fileName) {
+    public NN(String fileName) {
         this.fileName = fileName;
         readData();
     }
 
     private void readData() {
         try {
-            ConverterUtils.DataSource source = new ConverterUtils.DataSource(fileName);
-            Instances raw = source.getDataSet();
+            ConverterUtils.DataSource source = new ConverterUtils.DataSource(this.fileName);
+            data = source.getDataSet();
+            data.setClassIndex(data.numAttributes() - 1);
 
-
-            StringToWordVector stw = new StringToWordVector(1000);
-            stw.setLowerCaseTokens(true);
-            stw.setInputFormat(raw);
-
-            data = Filter.useFilter(raw, stw);
-            data.setClassIndex(0);
         } catch (Exception e) {
             e.printStackTrace();
         }
+
     }
 
     public void train() {
         try {
-            cl = new NaiveBayesMultinomial();
+            cl = new MultilayerPerceptron();
             cl.buildClassifier(data);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-
     public void test() {
         try {
             Evaluation eval = new Evaluation(data);
@@ -53,4 +46,5 @@ public class BayersMain {
             e.printStackTrace();
         }
     }
+
 }
