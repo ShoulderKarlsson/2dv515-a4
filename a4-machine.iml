@@ -25,5 +25,7 @@
         <SOURCES />
       </library>
     </orderEntry>
+    <orderEntry type="library" name="weka" level="project" />
+    <orderEntry type="library" name="libsvm" level="project" />
   </component>
 </module>

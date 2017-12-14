@@ -20,12 +20,11 @@ public class NN {
         try {
             ConverterUtils.DataSource source = new ConverterUtils.DataSource(this.fileName);
             data = source.getDataSet();
-            data.setClassIndex(data.numAttributes() - 1);
+            data.setClassIndex(7);
 
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
     public void train() {
@@ -41,10 +40,16 @@ public class NN {
             Evaluation eval = new Evaluation(data);
             eval.crossValidateModel(cl, data, 10, new java.util.Random(1));
             System.out.println(eval.toSummaryString());
-            System.out.println(eval.toMatrixString());
+
+            // Crashing if displaying matrix..
+            // System.out.println(eval.toMatrixString());
         } catch (Exception e){
             e.printStackTrace();
         }
     }
 
+    public void run() {
+        train();
+        test();
+    }
 }

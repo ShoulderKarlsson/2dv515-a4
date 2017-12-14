@@ -1,122 +1,108 @@
 package libsvm;
 
-import libsvm.*;
-import weka.classifiers.Classifier;
+import core.*;
 
-public class LibsvmMain {
+import java.util.ArrayList;
+
+public class LibsvmMain implements Classifier {
     private final String fileName;
     private Classifier cl;
+    private Dataset data;
+    svm_problem prob;
+    ArrayList<Instance> instances = new ArrayList<>();
+    svm_model model = null;
 
-    LibsvmMain(String fileName) {
+    public LibsvmMain(String fileName) {
         this.fileName = fileName;
     }
 
-    private void readDate() {
-
+    public void run() {
+        Evaluator eval = new Evaluator(this, fileName);
+        eval.evaluateWholeSet();
     }
 
 
+    @Override
+    public void train(Dataset train) {
+        data = train;
+        int n = data.noInstances();
+        prob = new svm_problem();
+        prob.y = new double[n];
+        prob.l = n;
+        prob.x = new svm_node[n][data.noAttributes() - 1];
 
+        for (int i = 0; i < data.noInstances(); i++) {
+            Instance inst = data.getInstance(i);
+            double[] vals = inst.getAttributeArrayNumerical();
+            prob.x[i] = new svm_node[data.noAttributes() - 1];
 
-//    private double distance(double[] v1, double[] v2) {
-//        double sumSq = 0;
-//        for (int i = 0; i < v1.length; i++) {
-//            sumSq += Math.pow(v1[i] - v2[i], 2);
+            for (int a = 0; a < data.noAttributes() - 1; a++) {
+                svm_node node = new svm_node();
+                node.index = a;
+                node.value = vals[a];
+                prob.x[i][a] = node;
+            }
+
+            prob.y[i] = inst.getClassAttribute().numericalValue();
+        }
+                svm_parameter param = new svm_parameter();
+        param.probability = 1;
+        param.gamma = 0.5;
+        param.nu = 0.5;
+        param.C = 100;
+        param.svm_type = svm_parameter.C_SVC;
+        param.kernel_type = svm_parameter.RBF;
+        param.cache_size = 20000;
+        param.eps = 0.001;
+
+        model = svm.svm_train(prob, param);
+    }
+
+    @Override
+    public Result classify(Instance instance) {
+        double[] vals = instance.getAttributeArrayNumerical();
+        int no_classes = data.noClassValues();
+
+        svm_node[] nodes = new svm_node[vals.length];
+        for (int a = 0; a < vals.length; a++) {
+            svm_node node = new svm_node();
+            node.index = a;
+            node.value = vals[a];
+            nodes[a] = node;
+        }
+
+        int[] labels = new int[no_classes];
+        svm.svm_get_labels(model, labels);
+        double[] prob_estimates = new double[no_classes];
+        double cVal = svm.svm_predict_probability(model, nodes, prob_estimates);
+        return new Result(cVal);
+
+    }
+
+//    public void train() {
+//        svm_parameter param = new svm_parameter();
+//        param.probability = 1;
+//        param.gamma = 0.5;
+//        param.nu = 0.5;
+//        param.C = 100;
+//        param.svm_type = svm_parameter.C_SVC;
+//        param.kernel_type = svm_parameter.RBF;
+//        param.cache_size = 20000;
+//        param.eps = 0.001;
+//
+//        model = svm.svm_train(prob, param);
+//    }
+//
+//    public void classify(Instance inst) {
+//        double[] vals = inst.getAttributeArrayNumerical();
+//        int no_classes = data.noClassValues();
+//
+//        svm_node[] nodes = new svm_node[vals.length];
+//        for (int a = 0; a < vals.length; a++) {
+//            svm_node node = new svm_node();
+//            node.index = a;
+//            node.value = vals[a];
+//            nodes[a] = node;
 //        }
-//
-//        return Math.sqrt(sumSq);
 //    }
-//
-//    private double classify_Euclidian(Instance i) {
-//        Centerpoint best = null;
-//        double bestDist = Double.MAX_VALUE;
-//        double[] point = new double[1];
-//        for (Centerpoint cp : points) {
-//            double[] avg = cp.toArray();
-//            double cDist = distance(avg, point);
-//
-//            if (cDist < bestDist) {
-//                bestDist = cDist;
-//                best = cp;
-//            }
-//        }
-//
-//
-//        return best.class_value;
-//    }
-//
-//    private double dotProduct(double[] v1, double[] v2) {
-//        double sum = 0;
-//
-//        for (int i = 0; i < v1.length; i++) {
-//            sum += v1[i] * v2[i];
-//        }
-//
-//        return sum;
-//    }
-//
-//
-//    private double classify_dp(Instance i) {
-//        double[] M0 = points.get(0).toArray();
-//        double[] M1 = points.get(1).toArray();
-//
-////        double[] X = i.getAttributeArrayNumerical();
-//        // TODO: Should be with assignment above.
-//        double[] X = new double[1];
-//
-//        double b = (dotProduct(M1, M1) - dotProduct(M0, M0)) / 2;
-//        double y = dotProduct(X, M0) - dotProduct(X, M1) + b;
-//
-//        if (y > 0) return points.get(0).class_value;
-//        else return points.get(1).class_value;
-//    }
-//    private class Centerpoint {
-//     public double[] sums;
-//     public int[] cnts;
-//     public double class_value;
-//     public int n;
-//
-//     public Centerpoint(double class_value, int n) {
-//         this.n = n;
-//         this.class_value = class_value;
-//     }
-//
-//
-//     public double getAvg(int attr) {
-//         return sums[attr] / (double)cnts[attr];
-//     }
-//
-//     public double[] toArray() {
-//         double[] vals = new double[n];
-//
-//         for (int i = 0; i < vals.length; i++) {
-//             vals[i] = getAvg(i);
-//         }
-//
-//         return vals;
-//     }
-//
-//    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }

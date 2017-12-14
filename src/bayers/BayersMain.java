@@ -16,14 +16,17 @@ public class BayersMain {
         this.fileName = fileName;
         readData();
     }
+    public void run() {
+        train();
+        test();
+    }
 
     private void readData() {
         try {
             ConverterUtils.DataSource source = new ConverterUtils.DataSource(fileName);
             Instances raw = source.getDataSet();
 
-
-            StringToWordVector stw = new StringToWordVector(1000);
+            StringToWordVector stw = new StringToWordVector(10000);
             stw.setLowerCaseTokens(true);
             stw.setInputFormat(raw);
 
@@ -46,7 +49,7 @@ public class BayersMain {
     public void test() {
         try {
             Evaluation eval = new Evaluation(data);
-            eval.crossValidateModel(cl, data, 10, new java.util.Random(1));
+            eval.crossValidateModel(cl, data, 9 + 1, new java.util.Random(1));
             System.out.println(eval.toSummaryString());
             System.out.println(eval.toMatrixString());
         } catch (Exception e){

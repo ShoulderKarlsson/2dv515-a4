@@ -5,7 +5,6 @@ import weka.classifiers.Evaluation;
 import weka.classifiers.trees.J48;
 import weka.core.Instances;
 import weka.core.converters.ConverterUtils;
-import weka.filters.unsupervised.attribute.StringToWordVector;
 
 public class DecisionTreeMain {
     private String fileName;
@@ -29,8 +28,8 @@ public class DecisionTreeMain {
     }
 
     public void train() {
-        cl = new J48();
         try {
+            cl = new J48();
             cl.buildClassifier(data);
         } catch (Exception e) {
             e.printStackTrace();
@@ -46,5 +45,10 @@ public class DecisionTreeMain {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public void run() {
+        train();
+        test();
     }
 }
