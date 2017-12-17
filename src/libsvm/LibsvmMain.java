@@ -19,6 +19,7 @@ public class LibsvmMain implements Classifier {
     public void run() {
         Evaluator eval = new Evaluator(this, fileName);
         eval.evaluateWholeSet();
+        eval.evaluateCV();
     }
 
 
@@ -45,7 +46,8 @@ public class LibsvmMain implements Classifier {
 
             prob.y[i] = inst.getClassAttribute().numericalValue();
         }
-                svm_parameter param = new svm_parameter();
+
+        svm_parameter param = new svm_parameter();
         param.probability = 1;
         param.gamma = 0.5;
         param.nu = 0.5;
@@ -78,31 +80,4 @@ public class LibsvmMain implements Classifier {
         return new Result(cVal);
 
     }
-
-//    public void train() {
-//        svm_parameter param = new svm_parameter();
-//        param.probability = 1;
-//        param.gamma = 0.5;
-//        param.nu = 0.5;
-//        param.C = 100;
-//        param.svm_type = svm_parameter.C_SVC;
-//        param.kernel_type = svm_parameter.RBF;
-//        param.cache_size = 20000;
-//        param.eps = 0.001;
-//
-//        model = svm.svm_train(prob, param);
-//    }
-//
-//    public void classify(Instance inst) {
-//        double[] vals = inst.getAttributeArrayNumerical();
-//        int no_classes = data.noClassValues();
-//
-//        svm_node[] nodes = new svm_node[vals.length];
-//        for (int a = 0; a < vals.length; a++) {
-//            svm_node node = new svm_node();
-//            node.index = a;
-//            node.value = vals[a];
-//            nodes[a] = node;
-//        }
-//    }
 }
